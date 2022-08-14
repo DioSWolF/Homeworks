@@ -1,10 +1,11 @@
 from collections import UserDict
 from datetime import datetime
+import pickle
 import re
 
 
 class Field():
-
+    
     def __init__(self, value):
         self.__value = None
         self.value = value
@@ -20,15 +21,11 @@ class Birthday(Field):
     @value.setter
     def value(self, value): 
         parse = " .,\/"
-
         for it in parse:
             value = value.replace(it, ".")
+        value = datetime.strptime(value ,"%d.%m.%Y")
+        self._Field__value = value
 
-        try:
-            value = datetime.strptime(value ,"%d.%m.%Y")
-            self._Field__value = value
-        except ValueError:
-            pass
 
 
 class Name(Field):
@@ -36,7 +33,7 @@ class Name(Field):
 
 
 class Phone(Field):
-
+    pass
     @property
     def value(self):
         return self._Field__value
@@ -87,8 +84,11 @@ number_of_records = 0
 class Adress_Book(UserDict):
 
     def add_record(self, rec: Record)-> None:
-        self.data[rec.name.value] = rec  
-
+        self.data[rec.name.value] = rec
+        
+    def load_data():
+        with open("data.bin", "rb") as file:
+            return pickle.load(file)
 
     def __str__(self):
         return str(self.data)
@@ -119,10 +119,11 @@ class Iterable:
             data_value = list(self.data.values())
             
             try:
-                return f"{data_key[self.start_list_index - 1]}, {data_value[self.start_list_index - 1].phone}, Birthday: {data_value[self.start_list_index - 1].birthday.value.strftime('%d.%m.%Y')}"
+                return f"{data_key[self.start_list_index - 1]}: {data_value[self.start_list_index - 1].phone}, Birthday: {data_value[self.start_list_index - 1].birthday.value.strftime('%d.%m.%Y')}"
 
             except AttributeError:
-                return f"{data_key[self.start_list_index - 1]}, {data_value[self.start_list_index - 1].phone}"
+                return f"{data_key[self.start_list_index - 1]}: {data_value[self.start_list_index - 1].phone}"
+
 
             except IndexError:
                 list_index = 0
@@ -136,4 +137,4 @@ class Iterable:
         raise StopIteration
 
 
-book = (Adress_Book)
+book = Adress_Book
