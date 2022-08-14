@@ -145,5 +145,3 @@ config_bot.py
 chromedriver
 chromedriver.exe
 chromedriver_win32.zip
-__pycache__
-.gitignore
