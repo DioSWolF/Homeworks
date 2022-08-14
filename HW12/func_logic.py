@@ -1,5 +1,4 @@
 from datetime import datetime
-from pathlib import Path
 import pickle
 import re
 from Class import Record, Adress_Book, Name, Phone, Birthday, Iterable
@@ -63,10 +62,8 @@ def add_contact(book, rec: Record) -> None:
         for i in rec.phone:
             if i not in book[rec.name.value].phone:
                 rec.add_phone(book)
-
-        if isinstance(book[rec.name.value].birthday, list):
-            book[rec.name.value].birthday = rec.birthday
-                                                                    # добавить функцию изменения даты рождения
+        
+        book[rec.name.value].birthday = rec.birthday        # добавить функцию изменения даты рождения
 
     else:
         book.add_record(rec)
