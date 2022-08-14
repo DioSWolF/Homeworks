@@ -1,10 +1,9 @@
 from datetime import datetime
+import pickle
 import re
 from Class import Record, Adress_Book, Name, Phone, Birthday, Iterable
 
-
 book = Adress_Book()
-
 
 def input_error(func):
 
@@ -13,7 +12,10 @@ def input_error(func):
         try:
             return func(*args, **kwargs)
 
-        except KeyError or UnboundLocalError :
+        except UnboundLocalError:
+            print("Write or change valid phone") 
+
+        except KeyError:
             print("Write a valid name or command")
             return None
 
@@ -41,12 +43,12 @@ def add_contact(book, rec: Record) -> None:
 
     if rec.name.value in book.keys():
         for i in rec.phone:
-
             if i not in book[rec.name.value].phone:
                 rec.add_phone(book)
 
         if isinstance(book[rec.name.value].birthday, list):
             book[rec.name.value].birthday = rec.birthday
+                                                                    # добавить функцию изменения даты рождения
 
     else:
         book.add_record(rec)
@@ -57,10 +59,14 @@ def add_contact(book, rec: Record) -> None:
 @input_error
 def change_contact(book, rec: Record) -> None:
     i = 1
+    if len(book[rec.name.value].phone) > 0:
+        for item in book[rec.name.value].phone:
+        
+            print(f"№ {i}: {item}")
+            i += 1
+    else:
+        return print("This contact don`t have phone")
 
-    for item in book[rec.name.value].phone:
-        print(f"№ {i}: {item}")
-        i += 1
 
     user_len_num = input("Enter № phone: ")
     index_phone = int(user_len_num) - 1
@@ -123,12 +129,13 @@ def parse_user_input(user_input):
 
     return new_user_input
 
-
+@input_error
 def parse_date(user_input):
     date_input = re.findall(r"\d{2}[ /.,\\]\d{2}[ /.,\\]\d{4}", user_input)
    
     if len(date_input) > 0:
         return date_input[-1]
+        
     else:
         return user_input
 
@@ -148,14 +155,16 @@ def show_all(user_input):
 def close(*_):
     pass
 
+def find():
+    pass
+
 
 def main():
-    user_input = ""
 
+    user_input = ""
     while user_input not in stop_word:
         user_input = input("Input command, name and phone: ")
         parse_input = parse_user_input(user_input)
-
         try:
             command = parse_input[0]
             name = Name(parse_input[1])
@@ -164,16 +173,18 @@ def main():
                 date = parse_date(parse_input[-1])
                 phones = [Phone(ph).value for ph in  parse_input[2:-1]]
                 birthday = Birthday(date)
-            except re.error:
-                phones = [Phone(ph).value for ph in  parse_input[2:]] 
-                birthday = None
 
+            except ValueError:
+                phones = [Phone(ph).value for ph in  parse_input[2:]] 
+                birthday = []
+            
             rec = Record(name, phones, birthday) 
             func = { 
                 "add" : add_contact,
                 "change" : change_contact,
                 "delete" : delete_contact,                                   
-                "phone" : phone_contact
+                "phone" : phone_contact,
+                "find" : ""
                     }
             command_func = func.get(command, close)
             command_func(book, rec)
