@@ -12,6 +12,11 @@ def input_error(func):
         try:
             return func(*args, **kwargs)
 
+        except FileNotFoundError:
+            save_data(book)
+            with open("data.bin", "rb") as file:
+                return pickle.load(file)
+
         except UnboundLocalError:
             print("Write or change valid phone") 
 
@@ -33,6 +38,18 @@ def input_error(func):
     return inner
 
 
+def save_data(book):
+    with open("data.bin", "wb") as file:
+        pickle.dump(book, file)
+
+@input_error
+def load_data():
+    with open("data.bin", "rb") as file:
+        return pickle.load(file)
+
+
+book = load_data()
+
 @input_error
 def add_contact(book, rec: Record) -> None:
     new_list = []
@@ -45,10 +62,8 @@ def add_contact(book, rec: Record) -> None:
         for i in rec.phone:
             if i not in book[rec.name.value].phone:
                 rec.add_phone(book)
-
-        if isinstance(book[rec.name.value].birthday, list):
-            book[rec.name.value].birthday = rec.birthday
-                                                                    # добавить функцию изменения даты рождения
+        
+        book[rec.name.value].birthday = rec.birthday        # добавить функцию изменения даты рождения
 
     else:
         book.add_record(rec)
@@ -196,7 +211,7 @@ def main():
             show_all(parse_input)
 
     print("Good bye!")
-
+    save_data(book)
 
 if __name__ == "__main__":
     main()
