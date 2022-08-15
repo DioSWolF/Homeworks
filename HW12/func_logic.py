@@ -35,18 +35,21 @@ def input_error(func):
 
 
 def save_data(book):
+    
     with open("data.bin", "wb") as file:
         pickle.dump(book, file)
 
 
 @input_error
 def load_data():
+
     with open("data.bin", "rb") as file:
         return pickle.load(file)
 
 
 @input_error
 def add_contact(book, rec: Record) -> None:
+
     new_list = []
 
     for value in filter(lambda x: x != None, rec.phone):
@@ -58,7 +61,7 @@ def add_contact(book, rec: Record) -> None:
             if i not in book[rec.name.value].phone:
                 rec.add_phone(book)
         
-        book[rec.name.value].birthday = rec.birthday        # добавить функцию изменения даты рождения
+        book[rec.name.value].birthday = rec.birthday        
 
     else:
         book.add_record(rec)
@@ -68,6 +71,7 @@ def add_contact(book, rec: Record) -> None:
 
 @input_error
 def change_contact(book, rec: Record) -> None:
+
     i = 1
     new_list = []
 
@@ -84,8 +88,10 @@ def change_contact(book, rec: Record) -> None:
 
     for value in filter(lambda x: x != None, rec.phone):
         new_list.append(value)
+
     for i in new_list:
         phone = i
+
     rec.change_phone(book, phone, index_phone)
 
     return "Your number has been successfully change."
@@ -93,6 +99,7 @@ def change_contact(book, rec: Record) -> None:
 
 @input_error
 def delete_contact(book, rec: Record) -> None:
+
     user_choise = input("What do you want to delete? number/contact : ")
 
     if user_choise.lower() == "number":
@@ -104,10 +111,12 @@ def delete_contact(book, rec: Record) -> None:
 
         user_len_num = input("Enter № phone: ")
         rec.delete_phone(user_len_num, book)
+
         return "Your number has been successfully delete."
 
     if user_choise.lower() == "contact":
         del book[rec.name.value]
+
         return "Your contact has been successfully delete."
 
 
@@ -123,14 +132,17 @@ def phone_contact(book, rec: Record) -> None:
 
 
 def days_birthday(book, rec: Record):
+
     now_date = datetime.now()
     date_birthday = datetime(year = now_date.year, month = book[rec.name.value].birthday.value.month, day = book[rec.name.value].birthday.value.day)
     days_birth = date_birthday - now_date
+
     return rec.days_to_birthday(days_birth.days)
 
 
 @input_error
 def parse_user_input(user_input):
+
     user_input = user_input.strip()
     user_input = user_input.split(" ")
     new_user_input = []
@@ -144,6 +156,7 @@ def parse_user_input(user_input):
 
 @input_error
 def parse_date(user_input):
+
     date_input = re.findall(r"\d{2}[ /.,\\]\d{2}[ /.,\\]\d{4}", user_input)
    
     if len(date_input) > 0:
@@ -154,15 +167,25 @@ def parse_date(user_input):
 
 
 def show_all(user_input):
-    try:
-        number_of_records = int(user_input[2])
-        Iterable(book, number_of_records)
 
-    except IndexError:
-        Iterable(book)
     all_contacts = "\n"
+    Iterable(book)
+
     for value in book:
         all_contacts += "".join(value) + "\n"
+
+    return all_contacts
+
+
+def show(book, num_cont):
+
+    number_of_records = int(num_cont.name.value)
+    Iterable(book, number_of_records)
+    all_contacts = "\n"
+
+    for value in book:
+        all_contacts += "".join(value) + "\n"
+
     return all_contacts
 
 
@@ -171,20 +194,28 @@ def close(*_):
 
 
 def find(book, rec: Record):
+    
     Iterable(book)
     find_contacts = "\n"
+
     for value in book:
         if rec.name.value in value:
             find_contacts += "".join(value) + "\n"
+
     return find_contacts
 
 
 def main():
 
     user_input = ""
+
     while user_input not in STOP_WORD:
         user_input = input("Input command, name and phone: ")
         parse_input = parse_user_input(user_input)
+
+        if parse_input[0] == "show" and parse_input[1].lower() == "all":
+            print(show_all(parse_input))
+            continue
         try:
             command = parse_input[0]
             name = Name(parse_input[1])
@@ -199,16 +230,11 @@ def main():
                 birthday = []
 
             rec = Record(name, phones, birthday) 
-
-
             command_func = FUNC.get(command, close)
             print_return_command = command_func(book, rec)
 
         except IndexError or UnboundLocalError:
             pass
-
-        if parse_input[0] == "show" and parse_input[1].lower() == "all":
-            print(show_all(parse_input))
 
         if not print_return_command == None:
             print(print_return_command)
@@ -223,8 +249,9 @@ FUNC = {
                 "change" : change_contact,              # change {name} {phone}
                 "delete" : delete_contact,              # delete {name}                   
                 "phone" : phone_contact,                # phone {name}
-                "find" : find                           # find {text}
-                    }
+                "find" : find,                          # find {text}
+                "show" : show                           # show {number}
+        }                                               # show all
 
 
 if __name__ == "__main__":
