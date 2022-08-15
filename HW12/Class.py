@@ -27,13 +27,11 @@ class Birthday(Field):
         self._Field__value = value
 
 
-
 class Name(Field):
     pass
 
 
 class Phone(Field):
-    pass
     @property
     def value(self):
         return self._Field__value
@@ -71,24 +69,28 @@ class Record:
         book[self.name.value].phone[index_phone] = phones
 
 
-    def delete_phone(self, index_phone):
+    def delete_phone(self, index_phone, book):
         del book[self.name.value].phone[int(index_phone) - 1]
     
 
     def days_to_birthday(self, days):
         return days
 
+
 list_index = 0
 number_of_records = 0
+
 
 class Adress_Book(UserDict):
 
     def add_record(self, rec: Record)-> None:
         self.data[rec.name.value] = rec
         
+
     def load_data():
         with open("data.bin", "rb") as file:
             return pickle.load(file)
+
 
     def __str__(self):
         return str(self.data)
@@ -96,7 +98,6 @@ class Adress_Book(UserDict):
 
     def __iter__(self):
         return Iterable(self.data, number_of_records)
-
 
 
 class Iterable:
@@ -126,7 +127,7 @@ class Iterable:
 
             try:
                 return f"{data_key[self.start_list_index - 1]}: {', '.join(data_value[self.start_list_index - 1].phone)}. "\
-                       f"Birthday: {data_value[self.start_list_index - 1].birthday.value.strftime('%d.%m.%Y')}"
+                       f"Birthday: {data_value[self.start_list_index - 1].birthday.value.strftime('%d.%m.%Y')}" 
 
             except AttributeError:
                 return f"{data_key[self.start_list_index - 1]}: {', '.join(data_value[self.start_list_index - 1].phone)}"
@@ -144,4 +145,3 @@ class Iterable:
         raise StopIteration
 
 
-book = Adress_Book
