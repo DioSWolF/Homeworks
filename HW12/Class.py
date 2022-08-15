@@ -101,12 +101,18 @@ class Adress_Book(UserDict):
 
 class Iterable:
 
-    def __init__(self, data, iter_number_of_records = 10):
+    def __init__(self, data, iter_number_of_records = None):
         global number_of_records
         self.current_index = 0
         self.data = data
         self.start_list_index = list_index
-        number_of_records = iter_number_of_records
+
+        if iter_number_of_records == None:
+            number_of_records = len(self.data)
+
+        else:
+            number_of_records = iter_number_of_records
+            
         self.iter_number_of_records = number_of_records
         
     def __next__(self):
@@ -117,12 +123,12 @@ class Iterable:
             self.start_list_index += 1
             data_key = list(self.data.keys())
             data_value = list(self.data.values())
-            
+
             try:
-                return f"{data_key[self.start_list_index - 1]}: {data_value[self.start_list_index - 1].phone}, Birthday: {data_value[self.start_list_index - 1].birthday.value.strftime('%d.%m.%Y')}"
+                return f"{data_key[self.start_list_index - 1]}: {', '.join(data_value[self.start_list_index - 1].phone)}. Birthday: {data_value[self.start_list_index - 1].birthday.value.strftime('%d.%m.%Y')}"
 
             except AttributeError:
-                return f"{data_key[self.start_list_index - 1]}: {data_value[self.start_list_index - 1].phone}"
+                return f"{data_key[self.start_list_index - 1]}: {', '.join(data_value[self.start_list_index - 1].phone)}"
 
 
             except IndexError:
