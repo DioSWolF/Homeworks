@@ -32,6 +32,7 @@ class Name(Field):
 
 
 class Phone(Field):
+
     @property
     def value(self):
         return self._Field__value
@@ -77,8 +78,7 @@ class Record:
         return days
 
 
-list_index = 0
-number_of_records = 0
+
 
 
 class Adress_Book(UserDict):
@@ -86,11 +86,9 @@ class Adress_Book(UserDict):
     def add_record(self, rec: Record)-> None:
         self.data[rec.name.value] = rec
         
-
     def load_data():
         with open("data.bin", "rb") as file:
             return pickle.load(file)
-
 
     def __str__(self):
         return str(self.data)
@@ -99,17 +97,20 @@ class Adress_Book(UserDict):
     def __iter__(self):
         return Iterable(self.data, number_of_records)
 
+list_index = 0
+number_of_records = 0
 
 class Iterable:
 
     def __init__(self, data, iter_number_of_records = None):
         global number_of_records
+        
         self.current_index = 0
         self.data = data
         self.start_list_index = list_index
-
         if iter_number_of_records == None:
             number_of_records = len(self.data)
+
 
         else:
             number_of_records = iter_number_of_records
@@ -127,7 +128,7 @@ class Iterable:
 
             try:
                 return f"{data_key[self.start_list_index - 1]}: {', '.join(data_value[self.start_list_index - 1].phone)}. "\
-                       f"Birthday: {data_value[self.start_list_index - 1].birthday.value.strftime('%d.%m.%Y')}" 
+                       f"Birthday: {data_value[self.start_list_index - 1].birthday.value.strftime('%d.%m.%Y')}"
 
             except AttributeError:
                 return f"{data_key[self.start_list_index - 1]}: {', '.join(data_value[self.start_list_index - 1].phone)}"
