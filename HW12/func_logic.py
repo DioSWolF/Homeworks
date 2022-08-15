@@ -3,7 +3,6 @@ import pickle
 import re
 from Class import Record, Adress_Book, Name, Phone, Birthday, Iterable
 
-book = Adress_Book()
 
 def input_error(func):
 
@@ -44,9 +43,6 @@ def save_data(book):
 def load_data():
     with open("data.bin", "rb") as file:
         return pickle.load(file)
-
-
-book = load_data()
 
 
 @input_error
@@ -107,7 +103,7 @@ def delete_contact(book, rec: Record) -> None:
             i += 1     
 
         user_len_num = input("Enter № phone: ")
-        rec.delete_phone(user_len_num)
+        rec.delete_phone(user_len_num, book)
         return "Your number has been successfully delete."
 
     if user_choise.lower() == "contact":
@@ -125,8 +121,6 @@ def phone_contact(book, rec: Record) -> None:
     except AttributeError:
         return f"\n{book.get(rec.name.value).name.value}: {', '.join(book[rec.name.value].phone)}\n"
 
-stop_word = ["stop", "exit", "good bye"]
-
 
 def days_birthday(book, rec: Record):
     now_date = datetime.now()
@@ -143,9 +137,10 @@ def parse_user_input(user_input):
 
     for i in filter(lambda x: len(x) >= 1, user_input):
         new_user_input.append(i)
-        new_user_input[0] = new_user_input[0].lower()
+    new_user_input[0] = new_user_input[0].lower()
 
     return new_user_input
+
 
 @input_error
 def parse_date(user_input):
@@ -174,6 +169,7 @@ def show_all(user_input):
 def close(*_):
     pass
 
+
 def find(book, rec: Record):
     Iterable(book)
     find_contacts = "\n"
@@ -186,7 +182,7 @@ def find(book, rec: Record):
 def main():
 
     user_input = ""
-    while user_input not in stop_word:
+    while user_input not in STOP_WORD:
         user_input = input("Input command, name and phone: ")
         parse_input = parse_user_input(user_input)
         try:
@@ -204,14 +200,8 @@ def main():
 
             rec = Record(name, phones, birthday) 
 
-            func = { 
-                "add" : add_contact,                    # add {name} *{phones} birthday
-                "change" : change_contact,              # change {name} {phone}
-                "delete" : delete_contact,              # delete {name}                   
-                "phone" : phone_contact,                # phone {name}
-                "find" : find                           # find {text}
-                    }
-            command_func = func.get(command, close)
+
+            command_func = FUNC.get(command, close)
             print_return_command = command_func(book, rec)
 
         except IndexError or UnboundLocalError:
@@ -219,10 +209,25 @@ def main():
 
         if parse_input[0] == "show" and parse_input[1].lower() == "all":
             print(show_all(parse_input))
+
         if not print_return_command == None:
             print(print_return_command)
+
     print("Good bye!")
     save_data(book)
 
+
+STOP_WORD = ("stop", "exit", "good bye")
+FUNC = { 
+                "add" : add_contact,                    # add {name} *{phones} birthday
+                "change" : change_contact,              # change {name} {phone}
+                "delete" : delete_contact,              # delete {name}                   
+                "phone" : phone_contact,                # phone {name}
+                "find" : find                           # find {text}
+                    }
+
+
 if __name__ == "__main__":
+    book = Adress_Book()
+    book = load_data()
     main()
