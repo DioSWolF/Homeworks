@@ -125,7 +125,8 @@ class Iterable:
             data_value = list(self.data.values())
 
             try:
-                return f"{data_key[self.start_list_index - 1]}: {', '.join(data_value[self.start_list_index - 1].phone)}. Birthday: {data_value[self.start_list_index - 1].birthday.value.strftime('%d.%m.%Y')}"
+                return f"{data_key[self.start_list_index - 1]}: {', '.join(data_value[self.start_list_index - 1].phone)}. "\
+                       f"Birthday: {data_value[self.start_list_index - 1].birthday.value.strftime('%d.%m.%Y')}"
 
             except AttributeError:
                 return f"{data_key[self.start_list_index - 1]}: {', '.join(data_value[self.start_list_index - 1].phone)}"
