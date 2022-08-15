@@ -158,10 +158,10 @@ def parse_date(user_input):
 def show_all(user_input):
     try:
         number_of_records = int(user_input[2])
-        Iterable(book.data, number_of_records)
+        Iterable(book, number_of_records)
 
     except IndexError:
-        Iterable(book.data)
+        Iterable(book)
 
     for value in book:
         print(value)
@@ -170,9 +170,11 @@ def show_all(user_input):
 def close(*_):
     pass
 
-def find():
-    pass
-
+def find(book, rec: Record):
+    Iterable(book)
+    for value in book:
+        if rec.name.value in value:
+            print(value)
 
 def main():
 
@@ -192,14 +194,15 @@ def main():
             except ValueError:
                 phones = [Phone(ph).value for ph in  parse_input[2:]] 
                 birthday = []
-            
+
             rec = Record(name, phones, birthday) 
+
             func = { 
-                "add" : add_contact,
-                "change" : change_contact,
-                "delete" : delete_contact,                                   
-                "phone" : phone_contact,
-                "find" : ""
+                "add" : add_contact,                    # add {name} *{phones} birthday
+                "change" : change_contact,              # change {name} {phone}
+                "delete" : delete_contact,              # delete {name}                   
+                "phone" : phone_contact,                # phone {name}
+                "find" : find                           # find {text}
                     }
             command_func = func.get(command, close)
             command_func(book, rec)
