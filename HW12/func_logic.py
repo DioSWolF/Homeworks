@@ -18,19 +18,16 @@ def input_error(func):
                 return pickle.load(file)
 
         except UnboundLocalError:
-            print("Write or change valid phone") 
+            return "Write or change valid phone"
 
         except KeyError:
-            print("Write a valid name or command")
-            return None
+            return "Write a valid name or command"
 
         except ValueError:
-            print("This phone number invalid")
-            return None
+            return "This phone number invalid"
 
         except IndexError:
-            print("Write name and one phone")
-            return None
+            return "Write name and one phone"
 
         except AttributeError:
             pass
@@ -42,6 +39,7 @@ def save_data(book):
     with open("data.bin", "wb") as file:
         pickle.dump(book, file)
 
+
 @input_error
 def load_data():
     with open("data.bin", "rb") as file:
@@ -49,6 +47,7 @@ def load_data():
 
 
 book = load_data()
+
 
 @input_error
 def add_contact(book, rec: Record) -> None:
@@ -68,29 +67,32 @@ def add_contact(book, rec: Record) -> None:
     else:
         book.add_record(rec)
 
-    return print("Your number has been successfully added.")
+    return "Your number has been successfully added."
 
 
 @input_error
 def change_contact(book, rec: Record) -> None:
     i = 1
+    new_list = []
+
     if len(book[rec.name.value].phone) > 0:
+
         for item in book[rec.name.value].phone:
-        
             print(f"№ {i}: {item}")
             i += 1
     else:
-        return print("This contact don`t have phone")
-
+        return "This contact don`t have phone"
 
     user_len_num = input("Enter № phone: ")
     index_phone = int(user_len_num) - 1
 
-    for i in rec.phone:
+    for value in filter(lambda x: x != None, rec.phone):
+        new_list.append(value)
+    for i in new_list:
         phone = i
-
     rec.change_phone(book, phone, index_phone)
-    return print("Your number has been successfully change.")
+
+    return "Your number has been successfully change."
 
 
 @input_error
@@ -106,21 +108,22 @@ def delete_contact(book, rec: Record) -> None:
 
         user_len_num = input("Enter № phone: ")
         rec.delete_phone(user_len_num)
-        return print("Your number has been successfully delete.")
+        return "Your number has been successfully delete."
 
     if user_choise.lower() == "contact":
         del book[rec.name.value]
-        return print("Your contact has been successfully delete.")
+        return "Your contact has been successfully delete."
 
 
 @input_error
 def phone_contact(book, rec: Record) -> None:
 
     try:
-        print(f"{book.get(rec.name.value).name.value}: {book.get(rec.name.value).phone}, Birthday: {book.get(rec.name.value, 'name dont find').birthday.value.date()}, Day to birthday: {days_birthday(book, rec)}")
+        return f"\n{book.get(rec.name.value).name.value}: {', '.join(book[rec.name.value].phone)}. "\
+               f"Birthday: {book.get(rec.name.value, 'name dont find').birthday.value.date()}, Day to birthday: {days_birthday(book, rec)}\n"
     
     except AttributeError:
-        print(f"{book.get(rec.name.value).name.value}: {book.get(rec.name.value).phone}")
+        return f"\n{book.get(rec.name.value).name.value}: {', '.join(book[rec.name.value].phone)}\n"
 
 stop_word = ["stop", "exit", "good bye"]
 
@@ -162,9 +165,10 @@ def show_all(user_input):
 
     except IndexError:
         Iterable(book)
-
+    all_contacts = "\n"
     for value in book:
-        print(value)
+        all_contacts += "".join(value) + "\n"
+    return all_contacts
 
 
 def close(*_):
@@ -172,9 +176,12 @@ def close(*_):
 
 def find(book, rec: Record):
     Iterable(book)
+    find_contacts = "\n"
     for value in book:
         if rec.name.value in value:
-            print(value)
+            find_contacts += "".join(value) + "\n"
+    return find_contacts
+
 
 def main():
 
@@ -205,14 +212,15 @@ def main():
                 "find" : find                           # find {text}
                     }
             command_func = func.get(command, close)
-            command_func(book, rec)
+            print_return_command = command_func(book, rec)
 
         except IndexError or UnboundLocalError:
             pass
 
         if parse_input[0] == "show" and parse_input[1].lower() == "all":
-            show_all(parse_input)
-
+            print(show_all(parse_input))
+        if not print_return_command == None:
+            print(print_return_command)
     print("Good bye!")
     save_data(book)
 
