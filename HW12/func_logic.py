@@ -94,7 +94,7 @@ def phone_contact(book, rec: Record) -> None:
     try:
         return f"\n{book.get(rec.name.value).name.value}: {', '.join(book[rec.name.value].phone)}. "\
                f"Birthday: {book.get(rec.name.value, 'name dont find').birthday.value.date()}, "\
-               "Day to birthday: {days_birthday(book, rec)}\n"
+               f"Day to birthday: {days_birthday(book, rec)}\n"
     except AttributeError:
         return f"\n{book.get(rec.name.value).name.value}: {', '.join(book[rec.name.value].phone)}\n"
 
@@ -187,7 +187,7 @@ def main():
 
 STOP_WORD = ("stop", "exit", "good bye")
 FUNC = { 
-                "add" : add_contact,                    # add {name} *{phones} birthday
+                "add" : add_contact,                    # add {name} *{phones} {birthday}
                 "change" : change_contact,              # change {name} {phone}
                 "delete" : delete_contact,              # delete {name}                   
                 "phone" : phone_contact,                # phone {name}
