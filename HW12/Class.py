@@ -38,6 +38,8 @@ class Phone(Field):
         new_value = re.findall(r"(?:\+\d{2})?\d{3,4}\D?\d{3}\D?\d{3}", value)
         if len(value) >= 9 and len(new_value) > 0:
             self.__value = value
+        else:
+            self.__value = None
 
         
 class Record:
