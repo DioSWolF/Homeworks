@@ -178,7 +178,7 @@ def main():
             command_func = FUNC.get(command, close)
             print_return_command = command_func(book, rec)
         except IndexError or UnboundLocalError:
-            pass
+            print_return_command = None
         if not print_return_command == None:
             print(print_return_command)
     print("Good bye!")
