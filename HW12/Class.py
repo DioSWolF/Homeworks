@@ -36,8 +36,10 @@ class Phone(Field):
     @value.setter
     def value(self, value):
         new_value = re.findall(r"(?:\+\d{2})?\d{3,4}\D?\d{3}\D?\d{3}", value)
+        for i in new_value:
+            new_value = i
         if len(value) >= 9 and len(new_value) > 0:
-            self.__value = value
+            self.__value = new_value
         else:
             self.__value = None
 
