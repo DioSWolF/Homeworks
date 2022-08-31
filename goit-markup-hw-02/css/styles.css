@@ -1,0 +1,190 @@
+/* index.html */
+body,
+li,
+ul {
+  color: #757575;
+  list-style-type: none;
+  padding-left: 0;
+}
+/* header */
+header {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+/* header class="header" */
+.web-header {
+  color: #2196f3;
+  text-transform: capitalize;
+}
+.studio-header {
+  color: black;
+  text-transform: capitalize;
+}
+.logo-header {
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 26px;
+}
+
+/* ul class="nav-item" */
+.nav-link {
+  color: #212121;
+  text-decoration: none;
+  text-transform: capitalize;
+}
+.nav-link:hover {
+  color: #2196f3;
+}
+.nav-link:focus {
+  color: #2196f3;
+}
+
+/* ul class="header-contact" */
+.header-email {
+  text-decoration: none;
+}
+.header-email:hover {
+  color: #2196f3;
+}
+.header-email:focus {
+  color: #2196f3;
+}
+.header-phone {
+  color: #757575;
+}
+
+/* footer */
+footer {
+  background-color: #2f303a;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.logo-footer {
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 26px;
+}
+.web-footer {
+  color: #2196f3;
+  text-transform: capitalize;
+}
+.studio-footer {
+  color: white;
+  text-transform: capitalize;
+}
+
+.foot-contact > li {
+  color: white;
+  font-style: normal;
+  line-height: 1.7;
+}
+.foot-phone,
+.foot-email {
+  opacity: 0.6;
+}
+
+/* main */
+/* section class="hero" */
+.hero {
+  color: #ffffff;
+  background-color: #2f303a;
+}
+.header-1 {
+  font-weight: 900;
+  font-size: 44px;
+  line-height: 1.4;
+  text-align: center;
+  text-transform: uppercase;
+}
+.hero-button {
+  color: #ffffff;
+  background-color: #2196f3;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.9;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* section class="details" */
+.detail-list {
+  font-size: 14px;
+}
+.detail-list .header-2 {
+  font-weight: 700;
+  line-height: 1.2;
+  font-size: 14px;
+  color: #212121;
+}
+.detail-list {
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* section class="working-list" */
+.working-list .header-2 {
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 1.2;
+  text-align: center;
+  color: #212121;
+}
+
+/* section class="team_list" */
+.team_list {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #212121;
+}
+
+.team_list .header-2 {
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 1.2;
+  text-align: center;
+}
+.team_list .text_team {
+  font-weight: 500;
+  text-align: center;
+  color: #212121;
+}
+
+/* portfolio.html */
+/* main */
+/* ul class="filter-button" */
+main {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.list-info {
+  line-height: 2.3;
+}
+
+.button {
+  color: #212121;
+  background-color: #f5f4faed;
+  font-weight: 700;
+  border: 0;
+  line-height: 1.6;
+}
+.button:hover {
+  color: white;
+  background-color: #2196f3;
+  cursor: pointer;
+}
+.button:focus {
+  color: white;
+  background-color: #2196f3;
+  cursor: pointer;
+}
+.header-3 {
+  color: #212121;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 2;
+}
