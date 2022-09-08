@@ -160,7 +160,7 @@ def start_scan(path=None):                              # Функция зап�
     scan_folder(path)
     print_name_def(path)
 
-start_scan(path=None)                                   # Запуск сортировки
+# start_scan(path=None)                                   # Запуск сортировки
 
  
 
