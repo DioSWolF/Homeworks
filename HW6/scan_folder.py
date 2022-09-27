@@ -1,14 +1,10 @@
-from genericpath import exists
-from os import mkdir, remove, rmdir, rename, listdir
+from genericpath import exists, isdir, isfile
+from os import mkdir, remove, rmdir, rename, listdir, startfile
 from pathlib import Path
 import shutil
 import sys
 
-path = None
-if path is None:
-    for arg in sys.argv[1:]:
-        path = arg
-path = Path(path)
+USER_PATH = ""                                      # Адрес чистки папки
 
 i = 0
 ather_expan = set()                                 # Список неизвестных расширений
@@ -22,14 +18,21 @@ suffix_list = {
         "new_folder" : ["archives" , "audios", "documents", "images", "videos", "x_files", "result_scan.txt"]
         }
 
-adres_folder_list = {
-            "image" : f"{path}/images",
-            "video" : f"{path}/videos",
-            "doc" : f"{path}/documents",
-            "audio" : f"{path}/audios",
-            "arh" : f"{path}/archives",
-            "x_files" : f"{path}/x_files"
-}
+
+
+def path_images(path):
+    return f"{path}/images"
+def path_videos(path):
+    return f"{path}/videos"
+def path_documents(path):
+    return f"{path}/documents"
+def path_audios(path):
+    return f"{path}/audios"
+def path_archives(path):
+    return f"{path}/archives"
+def path_x_files(path):
+    return f"{path}/x_files"
+
 
 
 def normalize(name_file):                           # Транслитерация 
@@ -58,7 +61,15 @@ def new_folders_create(path):                  # Создание папок и 
         open(file, "w").close
 
 
-def remove_file(folder):
+adres_folder_list = {
+            "image" : path_images,
+            "video" : path_videos,
+            "doc" : path_documents,
+            "audio" : path_audios,
+            "arh" : path_archives,
+            "x_files" : path_x_files,
+}
+def remove_file(folder, path):
     i = 0
     adres_folder = None
     for type_file, file_exts in suffix_list.items():
@@ -68,31 +79,31 @@ def remove_file(folder):
     if (folder.suffix).lower() in suffix_list["arh"]:
         new_name = (folder.name).split(".")
         new_name = normalize(str(new_name[:-1]))
-        while exists(f"{adres_folder_list[adres_folder]}/{new_name}"):
+        while exists(f"{adres_folder_list[adres_folder](path)}/{new_name}"):
             new_name = (folder.name).split(".")
             new_name = normalize(str(new_name[:-1]) + f"({i})")
             i += 1 
-        shutil.unpack_archive(folder, f"{adres_folder_list[adres_folder]}/{new_name}")
+        shutil.unpack_archive(folder, f"{adres_folder_list[adres_folder](path)}/{new_name}")
         remove(folder)
     elif adres_folder is None:
         ather_expan.add(folder.suffix)      # Список неизвестных расширений
         new_name = folder.name
-        while exists(f"{adres_folder_list['x_files']}/{new_name}"):
+        while exists(f"{adres_folder_list['x_files'](path)}/{new_name}"):
             new_name = (f"({i})" + str(folder.name))
             i += 1
-        shutil.move(folder, f"{adres_folder_list['x_files']}/{new_name}")
+        shutil.move(folder, f"{adres_folder_list['x_files'](path)}/{new_name}")
     else:
         new_name = (folder.name).split(".")
         new_name = normalize(str(new_name[:-1])) + "." + new_name[-1]
-        while exists(f"{adres_folder_list[adres_folder]}/{new_name}"):
+        while exists(f"{adres_folder_list[adres_folder](path)}/{new_name}"):
             new_name = (folder.name).split(".")
             new_name = normalize(str(new_name[:-1])) + f"({i})" + "." + new_name[-1]
             i += 1
-        shutil.move(folder, f"{adres_folder_list[adres_folder]}/{new_name}")
+        shutil.move(folder, f"{adres_folder_list[adres_folder](path)}/{new_name}")
 
 
 def scan_folder(path):         # Основное тело скрипта(сортировка и переименование)
-    path = Path(path)
+    # path = Path(path)
     for folder in path.iterdir():
         if folder.name in suffix_list["new_folder"]:
             continue                                # Исключение конечных папок сортировки
@@ -104,7 +115,7 @@ def scan_folder(path):         # Основное тело скрипта(сор
                 rename(folder, (path/normalize(folder.name))) 
         elif folder.is_file():                      # Сортировка файлов
             all_expan.add(folder.suffix)        
-            remove_file(folder)
+            remove_file(folder, path)
     
 
 def print_name_def(path):        # Вывод результатов
@@ -124,7 +135,7 @@ def print_name_def(path):        # Вывод результатов
     x_files_name.append("| {:<100} |".format("File in x_files"))
     
     for type_file, folder_adr in adres_folder_list.items():
-        for file in Path(adres_folder_list[type_file]).iterdir():
+        for file in Path(adres_folder_list[type_file](path)).iterdir():
             if type_file == "image":
                 archives_name.append("| {:^100} |".format(file.name))
             if type_file == "video":
@@ -148,10 +159,12 @@ def print_name_def(path):        # Вывод результатов
         file.write("| {:^100} |\n".format(f"{set(ather_expan)}"))
         file.write("| {:<100} |\n".format(f"All expanding"))
         file.write("| {:^100} |".format(f"{set(all_expan)}"))
-    print("Chek your scan folder! You need 'result_scan.txt'")
+    return "\n>>> Chek your scan folder or use menu options <<<"
 
 
-def start_scan(path=None):                              # Функция запуска сортировки
+def start_scan(path=None):    
+    if USER_PATH == "": 
+        return "\n>>>>>> WRITE FOLDER ADRESS!!! <<<<<<\n>>>>>> WRITE FOLDER ADRESS!!! <<<<<<\n>>>>>> WRITE FOLDER ADRESS!!! <<<<<<"                         # Функция запуска сортировки
     if path is None:
         for arg in sys.argv[1:]:
             path = arg
@@ -160,21 +173,74 @@ def start_scan(path=None):                              # Функция зап�
     scan_folder(path)
     print_name_def(path)
 
-# start_scan(path=None)                                   # Запуск сортировки
+                                 # Запуск сортировки
 
- 
-
-
-
+def close(*_):
+    return "\n>> Invalid chose"
 
 
 
+def main():
+    user_input = ""
+    while user_input != 0:
+        print_help()
+        user_input = input(">>> 0: Exit to main menu.\n\n<< Chose you command: ")
+        user_input = CLEAN_DICT.get(user_input, close)
+        user_input = user_input(USER_PATH)
+        if user_input != None:
+            print(user_input)
+
+def write_path(*_):
+    global USER_PATH
+    user_input = ""
+    while user_input != "0":
+        user_input = input("\n>>> 0: To enter the contact menu.\n\n<< Write folder adress to work whis it: ").strip()
+        if user_input == "0":
+            return
+        if len(user_input.split(" ")) > 1 or isfile(user_input) == True or isdir(user_input) == False:
+            return "\n>>> You write invalid folder adress <<<"
+        USER_PATH = user_input
+        return "\n>>> Adress folder added to work whith it <<<"
 
 
+def print_help():
+    i = 1
+    a =["\nList of commands:\n"]
+    for help_text in HELP_CLEAN_DICT.values():
+        a.append("".join(f"> {i}) {help_text}\n"))
+        i += 1
+
+    print("".join(a))
+
+def open_folder(path):
+    try:
+        startfile(path)
+    except:
+        return "\n>>> This folder don`t find! <<<"
+    
+
+def open_file(path):
+    try:
+        startfile(f"{path}\\result_scan.txt")
+    except FileNotFoundError:
+        return "\n>>> You don`t clean this folder! <<<"
+
+HELP_CLEAN_DICT =   {
+                    "write_path" : ">>> Chose folder to work whit it! <<<",
+                    "start_scan" : "Start clean folder",
+                    "open_folder" : "Open folder after clean",
+                    "open_file" : "Open read file after clean",
+                    }
+
+CLEAN_DICT =    {
+                "1" : write_path,
+                "2" : start_scan,
+                "3" : open_folder,
+                "4" : open_file,
+                }
 
 
+def start_bot():
+    main()
 
-
-
-
-
+start_bot()

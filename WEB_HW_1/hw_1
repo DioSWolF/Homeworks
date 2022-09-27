@@ -1,0 +1,54 @@
+from abc import ABC, abstractmethod
+import json
+import pickle 
+
+
+
+class SerializationInterface(ABC):
+    @abstractmethod
+    def load_data(self, filepath):
+        pass
+
+    @abstractmethod
+    def save_data(self, file_path, data):
+        pass
+
+
+class SerializBin(SerializationInterface):
+
+    def load_data(self, file_path):
+        with open(file_path, 'rb') as fh:
+            return pickle.load(fh)
+
+    def save_data(self, file_path, data):
+        with open(file_path, 'wb') as fh:
+            pickle.dump(data, fh)
+
+
+class SerializJson(SerializationInterface):
+    def load_data(self, file_path):
+        with open(file_path, encoding='utf-8') as fh:
+            return json.load(fh)
+
+    def save_data(self, file_path, data):
+        with open(file_path, 'w', encoding='utf-8') as fh:
+            json.dump(data, fh)
+
+
+
+serializer_dict = {
+            "Keyt" : "1994/08/09",
+            "Atrox" : "2013/08/12",
+            "Milla" : "2022/08/12",
+            "Pyke" : "2012/08/08",
+            "Kamilla" : "1976/06/08"
+}
+
+SerializBin().save_data('data.json', serializer_dict)
+SerializJson().save_data('data.bin', serializer_dict)
+
+js_load = SerializBin().load_data('data.json')
+bin_load = SerializJson().load_data('data.bin')
+
+print(f'js_load: {js_load}')
+print(f'bin_load: {bin_load}')
