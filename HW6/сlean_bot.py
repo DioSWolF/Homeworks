@@ -1,11 +1,19 @@
+from datetime import datetime
 from genericpath import exists, isdir, isfile
-from os import mkdir, remove, rmdir, rename, listdir, startfile
+from os import mkdir, remove, rmdir, listdir, rename
+import os
 from pathlib import Path
 import shutil
 import sys
+import concurrent.futures
 
-USER_PATH = ""                                      # Адрес чистки папки
 
+if sys.platform == "win32":
+    from os import startfile
+
+PATH_LIST = []
+USER_PATH = ""
+                                                    # Адрес чистки папки
 i = 0
 ather_expan = set()                                 # Список неизвестных расширений
 all_expan = set()                                   # Список всех расширений
@@ -20,19 +28,18 @@ suffix_list = {
 
 
 
-def path_images(path):
-    return f"{path}/images"
-def path_videos(path):
-    return f"{path}/videos"
-def path_documents(path):
-    return f"{path}/documents"
-def path_audios(path):
-    return f"{path}/audios"
-def path_archives(path):
-    return f"{path}/archives"
-def path_x_files(path):
-    return f"{path}/x_files"
-
+def path_images():
+    return f"{USER_PATH}\\images"
+def path_videos():
+    return f"{USER_PATH}\\videos"
+def path_documents():
+    return f"{USER_PATH}\\documents"
+def path_audios():
+    return f"{USER_PATH}\\audios"
+def path_archives():
+    return f"{USER_PATH}\\archives"
+def path_x_files():
+    return f"{USER_PATH}\\x_files"
 
 
 def normalize(name_file):                           # Транслитерация 
@@ -51,6 +58,9 @@ def normalize(name_file):                           # Транслитераци
 
 
 def new_folders_create(path):                  # Создание папок и путей к ним
+    global PATH_LIST 
+    for path_adr in adres_folder_list.values():
+        PATH_LIST.append(path_adr())
     folreds_list = listdir(path)
     required_folders = ["archives", "audios", "documents", "images", "videos", "x_files"]
     for folder in required_folders:
@@ -68,58 +78,83 @@ adres_folder_list = {
             "audio" : path_audios,
             "arh" : path_archives,
             "x_files" : path_x_files,
-}
-def remove_file(folder, path):
-    i = 0
-    adres_folder = None
-    for type_file, file_exts in suffix_list.items():
-        if (folder.suffix).lower() in file_exts: 
-            adres_folder = type_file
-            break
-    if (folder.suffix).lower() in suffix_list["arh"]:
-        new_name = (folder.name).split(".")
-        new_name = normalize(str(new_name[:-1]))
-        while exists(f"{adres_folder_list[adres_folder](path)}/{new_name}"):
+                    }
+
+def remove_file(file_list): 
+    for file_path in file_list:
+        i = 0
+        file_name, file_suf = os.path.splitext(file_path)
+        all_expan.add(file_suf)  
+        file_name = f"{os.path.basename(file_name)}{file_suf}"
+        adres_folder = None
+        for type_file, file_exts in suffix_list.items():
+            if (file_suf).lower() in file_exts: 
+                adres_folder = type_file
+                break
+        
+        folder = Path(file_path)
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+        if (file_suf).lower() in suffix_list["arh"]:
             new_name = (folder.name).split(".")
-            new_name = normalize(str(new_name[:-1]) + f"({i})")
-            i += 1 
-        shutil.unpack_archive(folder, f"{adres_folder_list[adres_folder](path)}/{new_name}")
-        remove(folder)
-    elif adres_folder is None:
-        ather_expan.add(folder.suffix)      # Список неизвестных расширений
-        new_name = folder.name
-        while exists(f"{adres_folder_list['x_files'](path)}/{new_name}"):
-            new_name = (f"({i})" + str(folder.name))
-            i += 1
-        shutil.move(folder, f"{adres_folder_list['x_files'](path)}/{new_name}")
-    else:
-        new_name = (folder.name).split(".")
-        new_name = normalize(str(new_name[:-1])) + "." + new_name[-1]
-        while exists(f"{adres_folder_list[adres_folder](path)}/{new_name}"):
+            new_name = normalize(str(new_name[:-1]))
+            while exists(f"{adres_folder_list[adres_folder]()}/{new_name}"):
+                
+                new_name = (folder.name).split(".")
+                new_name = normalize(str(new_name[:-1]) + f"({i})")
+                i += 1 
+            if os.stat(folder).st_size > 50000000:
+                with executor:
+                    executor.submit(shutil.unpack_archive, folder, f"{adres_folder_list[adres_folder]()}/{new_name}")
+                with executor:
+                    executor.submit(remove, folder)
+            else:
+                shutil.unpack_archive(folder, f"{adres_folder_list[adres_folder]()}/{new_name}")
+
+        elif adres_folder is None:
+            ather_expan.add(file_suf)      # Список неизвестных расширений
+            new_name = folder.name
+            while exists(f"{adres_folder_list['x_files']()}/{new_name}"):
+                
+                new_name = (f"({i})" + str(folder.name))
+                i += 1
+            if os.stat(folder).st_size > 50000000:
+                with executor:
+                    executor.submit(shutil.move, folder, f"{adres_folder_list['x_files']()}/{new_name}")
+            else:
+                shutil.move(folder, f"{adres_folder_list['x_files']()}/{new_name}")
+        else:
             new_name = (folder.name).split(".")
-            new_name = normalize(str(new_name[:-1])) + f"({i})" + "." + new_name[-1]
-            i += 1
-        shutil.move(folder, f"{adres_folder_list[adres_folder](path)}/{new_name}")
+            new_name = normalize(str(new_name[:-1])) + "." + new_name[-1]
+            while exists(f"{adres_folder_list[adres_folder]()}/{new_name}"):
+                new_name = (folder.name).split(".")
+                new_name = normalize(str(new_name[:-1])) + f"({i})" + "." + new_name[-1]
+                i += 1
+            if os.stat(folder).st_size > 50000000:   
+                with executor:
+                    executor.submit(shutil.move, folder, f"{adres_folder_list[adres_folder]()}/{new_name}")
+            else:
+                shutil.move(folder, f"{adres_folder_list[adres_folder]()}/{new_name}")
 
 
-def scan_folder(path):         # Основное тело скрипта(сортировка и переименование)
-    # path = Path(path)
-    for folder in path.iterdir():
-        if folder.name in suffix_list["new_folder"]:
-            continue                                # Исключение конечных папок сортировки
-        if folder.is_dir(): 
-            scan_folder(folder) 
-            try:
-                rmdir(folder)                       # Удаление и переименование файлов (Записать ошибку пустой папки)
-            except OSError:
-                rename(folder, (path/normalize(folder.name))) 
-        elif folder.is_file():                      # Сортировка файлов
-            all_expan.add(folder.suffix)        
-            remove_file(folder, path)
-    
+def scan_folder(path):  
+    file_list = []
+    path_list = []
+    for folder_path, not_use, file_name in os.walk(path):
+        if folder_path not in [i() for i in adres_folder_list.values()]:
+            path_list.append(folder_path)
+            for file in file_name:   
+                if file != "result_scan.txt" or file_name == []:
+                    file_list.append(f"{folder_path}\\{file}")   
+    remove_file(file_list)
+    try:
+        for i in path_list[::-1]:
+            rmdir(i)
+    except OSError:
+        pass
 
+
+        
 def print_name_def(path):        # Вывод результатов
-    
     archives_name = []            
     audios_name = []
     documents_name = []
@@ -135,7 +170,7 @@ def print_name_def(path):        # Вывод результатов
     x_files_name.append("| {:<100} |".format("File in x_files"))
     
     for type_file, folder_adr in adres_folder_list.items():
-        for file in Path(adres_folder_list[type_file](path)).iterdir():
+        for file in Path(adres_folder_list[type_file]()).iterdir():
             if type_file == "image":
                 archives_name.append("| {:^100} |".format(file.name))
             if type_file == "video":
@@ -155,28 +190,28 @@ def print_name_def(path):        # Вывод результатов
         for item in all_files_folder:
             for res in item:
                 file.write(f"{res}\n")
-        file.write("| {:<100} |\n".format(f"Ather expanding"))
+        file.write("| {:<100} |\n".format(f"Оther expanding"))
         file.write("| {:^100} |\n".format(f"{set(ather_expan)}"))
         file.write("| {:<100} |\n".format(f"All expanding"))
         file.write("| {:^100} |".format(f"{set(all_expan)}"))
-    return "\n>>> Chek your scan folder or use menu options <<<"
+    return print("\n>>> Chek your scan folder or use menu options <<<")
 
 
 def start_scan(path=None):    
     if USER_PATH == "": 
         return "\n>>>>>> WRITE FOLDER ADRESS!!! <<<<<<\n>>>>>> WRITE FOLDER ADRESS!!! <<<<<<\n>>>>>> WRITE FOLDER ADRESS!!! <<<<<<"                         # Функция запуска сортировки
     if path is None:
-        for arg in sys.argv[1:]:
-            path = arg
+        return "\n>>>>>> WRITE FOLDER ADRESS!!! <<<<<<\n>>>>>> WRITE FOLDER ADRESS!!! <<<<<<\n>>>>>> WRITE FOLDER ADRESS!!! <<<<<<"
+    a = datetime.now()
+    
     path = Path(path)
     new_folders_create(path)
     scan_folder(path)
     print_name_def(path)
-
-                                 # Запуск сортировки
+    print(datetime.now() - a)    
 
 def close(*_):
-    return "\n>> Invalid chose"
+    return "\n>>> Invalid chose <<<"
 
 
 
@@ -185,6 +220,8 @@ def main():
     while user_input != 0:
         print_help()
         user_input = input(">>> 0: Exit to main menu.\n\n<< Chose you command: ")
+        if user_input == "0":
+            return 
         user_input = CLEAN_DICT.get(user_input, close)
         user_input = user_input(USER_PATH)
         if user_input != None:
@@ -194,6 +231,8 @@ def write_path(*_):
     global USER_PATH
     user_input = ""
     while user_input != "0":
+        if user_input == "0":
+            return
         user_input = input("\n>>> 0: To enter the contact menu.\n\n<< Write folder adress to work whis it: ").strip()
         if user_input == "0":
             return
@@ -214,14 +253,21 @@ def print_help():
 
 def open_folder(path):
     try:
-        startfile(path)
+        if sys.platform == "win32":
+            startfile(path)
+        else:
+            subprocess.call(['open', path])
     except:
         return "\n>>> This folder don`t find! <<<"
     
 
 def open_file(path):
     try:
-        startfile(f"{path}\\result_scan.txt")
+        if sys.platform == "win32":
+            startfile(f"{path}\\result_scan.txt")
+        else:
+            FileName = f"{path}/result_scan.txt"
+            subprocess.call(['open', FileName])
     except FileNotFoundError:
         return "\n>>> You don`t clean this folder! <<<"
 
@@ -240,7 +286,5 @@ CLEAN_DICT =    {
                 }
 
 
-def start_bot():
+def start_clean_bot():
     main()
-
-start_bot()
